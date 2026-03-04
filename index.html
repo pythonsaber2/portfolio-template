@@ -602,7 +602,7 @@
         .footer-grid {
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns to fill space evenly */
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
             color: var(--muted);
             font-size: 0.85rem;
@@ -904,7 +904,7 @@
         <!-- Massive Footer -->
         <footer id="contact" class="reveal">
             <!-- Magnetic CTA -->
-            <a href="#" class="cta-massive hover-target magnetic-btn action-link" data-title="Opening Email Client">Let's Talk</a>
+            <a href="mailto:9llz@fcf.social" class="cta-massive hover-target magnetic-btn action-link" data-title="Opening Email Client">Let's Talk</a>
             
             <div class="footer-grid">
                 <div class="footer-col">
@@ -916,8 +916,9 @@
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Socials</h4>
+                    <h4>Connect</h4>
                     <ul>
+                        <li><a href="mailto:9llz@fcf.social" class="hover-target action-link" data-title="Opening Email Client">9llz@fcf.social</a></li>
                         <li><a href="https://github.com/pythonsaber2" target="_blank" class="hover-target action-link" data-title="GitHub Profile">GitHub</a></li>
                     </ul>
                 </div>
@@ -946,8 +947,9 @@
         // Intercept all empty or placeholder links to show a cool notification
         document.querySelectorAll('.action-link').forEach(link => {
             link.addEventListener('click', (e) => {
-                // Allow actual external links (like github) to open if they have a real href
-                if (link.getAttribute('href') !== '#') {
+                // Allow actual external links (like github or mailto) to open if they have a real href
+                const href = link.getAttribute('href');
+                if (href && href !== '#' && !href.startsWith('javascript:')) {
                     return; 
                 }
                 
