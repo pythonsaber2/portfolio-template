@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PythonSaber — Digital Director & Creative Engineer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030303;
+            --fg: #f4f4f5;
+            --accent: #ff3b30;
+            --muted: #71717a;
+            --muted-dark: #27272a;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.3);
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --transition-fast: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        ::selection {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important; /* Hide default cursor */
+        }
+
+        html {
+            scroll-behavior: auto; /* Handled by JS for better control */
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* --- Noise Overlay --- */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Noi_Noise_Texture.png");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* --- Custom Cursor --- */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--fg);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-hover);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            transition-timing-function: ease-out;
+            transition-duration: 0.15s;
+            transition-property: transform;
+        }
+
+        /* Cursor Hover States */
+        body.hovering .cursor-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent);
+        }
+
+        body.hovering .cursor-outline {
+            width: 60px;
+            height: 60px;
+            border-color: var(--accent);
+            background-color: rgba(255, 59, 48, 0.05);
+        }
+
+        /* --- Layout & Typography --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 4vw;
+        }
+
+        .outline-text {
+            color: transparent;
+            -webkit-text-stroke: 2px var(--fg);
+        }
+
+        /* Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all var(--transition-slow);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3vw 0;
+            mix-blend-mode: difference;
+            position: relative;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2vw;
+        }
+
+        .nav-links a {
+            color: var(--fg);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+            padding: 5px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 1px;
+            background: var(--fg);
+            transform: translateX(-100%);
+            transition: transform var(--transition-fast);
+        }
+
+        .nav-links a:hover::after {
+            transform: translateX(0);
+        }
+
+        /* --- Massive Hero --- */
+        .hero {
+            padding: 10vh 0 20vh;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 12vw, 13rem);
+            font-weight: 900;
+            line-height: 0.85;
+            letter-spacing: -0.04em;
+            text-transform: uppercase;
+            margin-left: -0.5vw;
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: var(--muted);
+            max-width: 40ch;
+            margin-left: auto;
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        .hero-meta {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            margin-top: 5vh;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+
+        /* --- Section Titles --- */
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            line-height: 1;
+        }
+
+        .section-title span {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--muted);
+            letter-spacing: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- Staggered Project Grid --- */
+        .projects {
+            padding: 10vh 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5vw;
+        }
+
+        .grid .project-card:nth-child(even) {
+            margin-top: 20vh;
+        }
+
+        .project-card {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: opacity var(--transition-slow), transform var(--transition-slow);
+            will-change: transform, opacity;
+        }
+
+        .grid:hover .project-card:not(:hover) {
+            opacity: 0.15;
+            filter: grayscale(100%);
+        }
+
+        .project-image {
+            width: 100%;
+            aspect-ratio: 4/5;
+            background: var(--muted-dark);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+
+        .project-image::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, #111, #1a1a1a);
+            transition: transform var(--transition-slow);
+        }
+
+        .project-card:hover .project-image::before {
+            transform: scale(1.05);
+        }
+
+        .project-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .project-info h3 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 2vw, 2rem);
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .project-tags span {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .project-year {
+            color: var(--fg);
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+        }
+
+        /* --- Process Section --- */
+        .process-section {
+            padding: 15vh 0;
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8vw;
+        }
+
+        .process-intro {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            line-height: 1.3;
+            color: var(--fg);
+            position: sticky;
+            top: 20vh;
+        }
+
+        .process-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+        }
+
+        .step {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+        }
+
+        .step-number {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        /* --- List Rows --- */
+        .list-section {
+            padding: 10vh 0;
+        }
+
+        .list-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            padding: 3.5rem 0;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition-fast);
+            align-items: center;
+        }
+
+        .list-row:hover {
+            border-bottom-color: var(--fg);
+            padding-left: 2vw;
+            background: rgba(255,255,255,0.01);
+        }
+
+        .list-row h3 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .list-row p {
+            font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 60ch;
+        }
+
+        .list-row .meta {
+            text-align: right;
+            font-family: var(--font-display);
+            color: var(--muted);
+            font-size: 1.2rem;
+        }
+
+        .experience-row {
+            grid-template-columns: 1.5fr 1fr 1fr;
+        }
+
+        /* --- Articles --- */
+        .article-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .article-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2.5rem 0;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition-fast);
+        }
+
+        .article-row:hover {
+            padding-left: 1vw;
+            padding-right: 1vw;
+            background: var(--muted-dark);
+        }
+
+        .article-row h3 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            pointer-events: none; /* Let the row catch the hover */
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 2rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        /* --- FAQ Accordion --- */
+        .faq-section {
+            padding: 15vh 0;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .accordion-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2.5rem 0;
+            background: none;
+            border: none;
+            color: var(--fg);
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+            text-transform: uppercase;
+            text-align: left;
+            outline: none;
+        }
+
+        .accordion-icon {
+            font-size: 2rem;
+            font-weight: 300;
+            transition: transform var(--transition-fast), color var(--transition-fast);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .accordion-inner {
+            padding-bottom: 2.5rem;
+        }
+
+        .accordion-inner p {
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 70ch;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(45deg);
+            color: var(--accent);
+        }
+
+        /* --- Toast Notification System --- */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--fg);
+            color: var(--bg);
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            transform: translateY(150%);
+            opacity: 0;
+            transition: all var(--transition-fast);
+            z-index: 99999;
+            pointer-events: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* --- Infinite Marquee Stack --- */
+        .marquee-container {
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            padding: 6vh 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+            background: var(--fg);
+            color: var(--bg);
+            display: flex;
+        }
+
+        .marquee-content {
+            display: flex;
+            white-space: nowrap;
+            animation: marquee 25s linear infinite;
+        }
+
+        .marquee-content span {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 8vw, 8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 0 3vw;
+            -webkit-text-stroke: 1px var(--bg);
+        }
+
+        .marquee-content span:nth-child(even) {
+            color: transparent;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* --- Massive Footer --- */
+        footer {
+            padding: 25vh 0 5vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .cta-massive {
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 15vw, 18rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--fg);
+            text-decoration: none;
+            line-height: 0.8;
+            letter-spacing: -0.05em;
+            transition: color var(--transition-fast), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            margin-bottom: 15vh;
+            display: inline-block;
+            will-change: transform;
+        }
+
+        .cta-massive:hover {
+            color: transparent;
+            -webkit-text-stroke: 2px var(--fg);
+        }
+
+        .footer-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns to fill space evenly */
+            gap: 2rem;
+            color: var(--muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+        }
+
+        .footer-col h4 {
+            color: var(--fg);
+            margin-bottom: 1rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-col ul a {
+            color: var(--muted);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-col ul a:hover {
+            color: var(--fg);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 1024px) {
+            .process-grid {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+            .process-intro {
+                position: relative;
+                top: 0;
+            }
+            .list-row, .experience-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 2.5rem 0;
+            }
+            .list-row .meta {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 8vw;
+            }
+            .grid .project-card:nth-child(even) {
+                margin-top: 0;
+            }
+            .hero p {
+                margin-left: 0;
+                text-align: left;
+                margin-top: 2rem;
+            }
+            .hero-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+            }
+            .article-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .cursor-dot, .cursor-outline {
+                display: none !important; /* Disable custom cursor on mobile */
+            }
+            * {
+                cursor: auto !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Action triggered.</div>
+
+    <!-- Custom Cursor DOM -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">PythonSaber&copy;</div>
+            <nav class="nav-links">
+                <a href="#work" class="hover-target nav-scroll">Work</a>
+                <a href="#process" class="hover-target nav-scroll">Process</a>
+                <a href="#contact" class="hover-target nav-scroll">Contact</a>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero reveal">
+            <h1>
+                Creative<br>
+                <span class="outline-text">Engineer</span>
+            </h1>
+            <p>Bridging the gap between high-end aesthetic design and robust technical infrastructure. Building the digital future, today.</p>
+            
+            <div class="hero-meta">
+                <span>Available for Q3 2026</span>
+                <span>Based in Hamilton, ON</span>
+                <span>Scroll to Explore ↓</span>
+            </div>
+        </section>
+
+        <!-- Work Grid -->
+        <section id="work" class="projects">
+            <h2 class="section-title reveal">Selected Work <span>(04)</span></h2>
+            
+            <div class="grid">
+                <!-- Project 01 -->
+                <a href="#" class="project-card reveal hover-target action-link" data-title="Linear Redesign">
+                    <div class="project-image"></div>
+                    <div class="project-info">
+                        <div>
+                            <h3>Linear Redesign</h3>
+                            <div class="project-tags">
+                                <span>Product</span>
+                                <span>Engineering</span>
+                            </div>
+                        </div>
+                        <span class="project-year">25</span>
+                    </div>
+                </a>
+
+                <!-- Project 02 -->
+                <a href="#" class="project-card reveal hover-target action-link" data-title="Aura Systems">
+                    <div class="project-image"></div>
+                    <div class="project-info">
+                        <div>
+                            <h3>Aura Systems</h3>
+                            <div class="project-tags">
+                                <span>Identity</span>
+                                <span>Web GL</span>
+                            </div>
+                        </div>
+                        <span class="project-year">25</span>
+                    </div>
+                </a>
+
+                <!-- Project 03 -->
+                <a href="#" class="project-card reveal hover-target action-link" data-title="Pulse App">
+                    <div class="project-image"></div>
+                    <div class="project-info">
+                        <div>
+                            <h3>Pulse App</h3>
+                            <div class="project-tags">
+                                <span>Interaction</span>
+                                <span>Mobile</span>
+                            </div>
+                        </div>
+                        <span class="project-year">24</span>
+                    </div>
+                </a>
+
+                <!-- Project 04 -->
+                <a href="#" class="project-card reveal hover-target action-link" data-title="Static Motion">
+                    <div class="project-image"></div>
+                    <div class="project-info">
+                        <div>
+                            <h3>Static Motion</h3>
+                            <div class="project-tags">
+                                <span>Creative Dev</span>
+                            </div>
+                        </div>
+                        <span class="project-year">24</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Philosophy / Process -->
+        <section id="process" class="process-section reveal">
+            <h2 class="section-title">The Process <span>Methodology</span></h2>
+            <div class="process-grid">
+                <div class="process-intro">
+                    Great products are born from a rigorous, iterative process. I combine analytical thinking with creative intuition to solve complex problems.
+                </div>
+                <div class="process-steps">
+                    <div class="step reveal">
+                        <div class="step-number">01.</div>
+                        <h3>Discovery</h3>
+                        <p>Deep-diving into the problem space, understanding user needs, technical constraints, and business objectives before writing a single line of code.</p>
+                    </div>
+                    <div class="step reveal">
+                        <div class="step-number">02.</div>
+                        <h3>Architecture</h3>
+                        <p>Structuring the data models, system design, and visual hierarchy. Building a solid foundation that ensures scalability and seamless interaction.</p>
+                    </div>
+                    <div class="step reveal">
+                        <div class="step-number">03.</div>
+                        <h3>Execution</h3>
+                        <p>Translating strategy into reality. High-fidelity design prototyping followed by robust, performant, and accessible frontend engineering.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Articles / Insights -->
+        <section id="insights" class="list-section">
+            <h2 class="section-title reveal">Insights <span>Writing</span></h2>
+            
+            <a href="#" class="article-link hover-target reveal action-link" data-title="Headless Architecture Article">
+                <div class="article-row">
+                    <h3>The Future of Headless Architecture in 2026</h3>
+                    <div class="article-meta">
+                        <span>Development</span>
+                        <span>5 Min Read</span>
+                    </div>
+                </div>
+            </a>
+            <a href="#" class="article-link hover-target reveal action-link" data-title="Designing for Motion Article">
+                <div class="article-row">
+                    <h3>Designing for Motion: Beyond CSS Transitions</h3>
+                    <div class="article-meta">
+                        <span>Design</span>
+                        <span>8 Min Read</span>
+                    </div>
+                </div>
+            </a>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="faq-section reveal">
+            <h2 class="section-title">FAQ <span>Details</span></h2>
+            
+            <div class="accordion">
+                <div class="accordion-item hover-target">
+                    <button class="accordion-header hover-target" type="button">
+                        What is your typical tech stack?
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p>I primarily build with Next.js (React), TypeScript, and Tailwind CSS. For animation, I rely heavily on Framer Motion and GSAP. For 3D web experiences, I utilize Three.js and React Three Fiber. Backend architecture typically involves Node, PostgreSQL, and serverless edge functions.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item hover-target">
+                    <button class="accordion-header hover-target" type="button">
+                        Do you take on freelance projects?
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p>Yes, I selectively take on freelance projects depending on my current capacity. I usually book 1-2 months in advance. I prefer complete end-to-end projects (Design + Development) but am open to pure engineering roles for highly creative teams.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item hover-target">
+                    <button class="accordion-header hover-target" type="button">
+                        How do you price your work?
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <p>Every project is unique. After an initial discovery call, I provide a customized proposal based on the project's scope, complexity, and timeline. I typically bill on a project basis rather than hourly, ensuring alignment on the final deliverable and budget.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Edge-to-edge Marquee -->
+    <div class="marquee-container reveal">
+        <div class="marquee-content">
+            <span>React</span><span>Next.js</span><span>TypeScript</span><span>WebGL</span><span>Tailwind</span><span>Python</span><span>GSAP</span>
+            <span>React</span><span>Next.js</span><span>TypeScript</span><span>WebGL</span><span>Tailwind</span><span>Python</span><span>GSAP</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Massive Footer -->
+        <footer id="contact" class="reveal">
+            <!-- Magnetic CTA -->
+            <a href="#" class="cta-massive hover-target magnetic-btn action-link" data-title="Opening Email Client">Let's Talk</a>
+            
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Location</h4>
+                    <ul>
+                        <li>Hamilton, ON</li>
+                        <li>Canada</li>
+                        <li>EST Timezone</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Socials</h4>
+                    <ul>
+                        <li><a href="https://github.com/pythonsaber2" target="_blank" class="hover-target action-link" data-title="GitHub Profile">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col" style="text-align: right;">
+                    <p>&copy; 2026</p>
+                    <p style="margin-top: 10px;">Designed & Built by<br>PythonSaber.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // --- Interactive Toast System ---
+        const toast = document.getElementById('toast');
+        let toastTimeout;
+
+        const showToast = (message) => {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        };
+
+        // Intercept all empty or placeholder links to show a cool notification
+        document.querySelectorAll('.action-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Allow actual external links (like github) to open if they have a real href
+                if (link.getAttribute('href') !== '#') {
+                    return; 
+                }
+                
+                e.preventDefault(); // Stop page from jumping to top
+                const itemName = link.getAttribute('data-title') || 'Link';
+                showToast(`Opening: ${itemName}`);
+            });
+        });
+
+        // --- Smooth Nav Scrolling ---
+        document.querySelectorAll('.nav-scroll').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if(targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // --- Custom Cursor Logic ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        const hoverTargets = document.querySelectorAll('.hover-target');
+
+        // Check if device supports hover
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        if (!isTouchDevice) {
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
+
+                // Instant dot movement
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
+
+                // Delayed outline movement using animation frame for smoothness
+                cursorOutline.animate({
+                    left: `${posX}px`,
+                    top: `${posY}px`
+                }, { duration: 150, fill: "forwards" });
+            });
+
+            hoverTargets.forEach(target => {
+                target.addEventListener('mouseenter', () => {
+                    document.body.classList.add('hovering');
+                });
+                target.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('hovering');
+                });
+            });
+        }
+
+        // --- Intersection Observer for Scroll Reveals ---
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Only reveal once
+            });
+        }, revealOptions);
+
+        revealElements.forEach(el => {
+            revealOnScroll.observe(el);
+        });
+
+        // --- Bulletproof Accordion Logic ---
+        const accordions = document.querySelectorAll('.accordion-item');
+
+        accordions.forEach(acc => {
+            const btn = acc.querySelector('.accordion-header');
+            const content = acc.querySelector('.accordion-content');
+
+            btn.addEventListener('click', () => {
+                const isActive = acc.classList.contains('active');
+
+                // Close all other accordions first
+                accordions.forEach(otherAcc => {
+                    otherAcc.classList.remove('active');
+                    otherAcc.querySelector('.accordion-content').style.maxHeight = null;
+                });
+
+                // Toggle current if it wasn't already open
+                if (!isActive) {
+                    acc.classList.add('active');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        });
+
+        // --- Magnetic Button Effect ---
+        const magneticBtn = document.querySelector('.magnetic-btn');
+        
+        if (!isTouchDevice && magneticBtn) {
+            magneticBtn.addEventListener('mousemove', (e) => {
+                const rect = magneticBtn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                // Physics-based transform
+                magneticBtn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+            });
+
+            magneticBtn.addEventListener('mouseleave', () => {
+                // Snap back to origin
+                magneticBtn.style.transform = `translate(0px, 0px)`;
+            });
+        }
+    </script>
+</body>
+</html>
